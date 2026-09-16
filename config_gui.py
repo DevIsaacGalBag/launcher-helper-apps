@@ -368,6 +368,25 @@ class JarvisConfigApp(tk.Tk):
         apps_card = self._card(outer, "APPS QUE SE ABREN AL INICIAR")
         apps_card.pack(fill="both", expand=True, padx=20, pady=(0, 10))
 
+        # add_row se empaca ANTES que list_wrap (aunque list_wrap va arriba
+        # visualmente) para reservarle su alto primero. Si se empaca después,
+        # con fuentes un poco más altas (p. ej. Segoe UI en Windows) list_wrap
+        # -que tiene expand=True- puede comerse todo el espacio y dejar el
+        # botón "+ Agregar app" con 0px de alto, invisible.
+        add_row = tk.Frame(apps_card, bg=CARD_BG)
+        add_row.pack(side="bottom", fill="x", padx=18, pady=(2, 16))
+        flat_button(
+            add_row, "+  Agregar app", self.add_app_dialog,
+            bg=CARD_BG_ALT, hover=_lighten(CARD_BG_ALT, 0.3), fg=TEXT,
+            font=self.f_label, padx=14, pady=8,
+        ).pack(side="left")
+        tk.Label(
+            add_row,
+            text="(buscá entre tus apps instaladas, como el menú de aplicaciones)"
+            if platform.system() == "Linux" else "",
+            bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint,
+        ).pack(side="left", padx=10)
+
         list_wrap = tk.Frame(apps_card, bg=CARD_BG)
         list_wrap.pack(fill="both", expand=True, padx=10, pady=(0, 6))
 
@@ -403,20 +422,6 @@ class JarvisConfigApp(tk.Tk):
             text="Todavía no agregaste ninguna app.",
             bg=CARD_BG, fg=MUTED_DIM, font=self.f_label,
         )
-
-        add_row = tk.Frame(apps_card, bg=CARD_BG)
-        add_row.pack(fill="x", padx=18, pady=(2, 16))
-        flat_button(
-            add_row, "+  Agregar app", self.add_app_dialog,
-            bg=CARD_BG_ALT, hover=_lighten(CARD_BG_ALT, 0.3), fg=TEXT,
-            font=self.f_label, padx=14, pady=8,
-        ).pack(side="left")
-        tk.Label(
-            add_row,
-            text="(buscá entre tus apps instaladas, como el menú de aplicaciones)"
-            if platform.system() == "Linux" else "",
-            bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint,
-        ).pack(side="left", padx=10)
 
     # ---------- diálogos propios (reemplazan messagebox/simpledialog nativos) ----------
     def _modal_shell(self, title, width=380):
