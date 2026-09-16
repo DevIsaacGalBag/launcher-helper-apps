@@ -11,6 +11,7 @@ que es el archivo que lee jarvis_start.py al arrancar.
 import configparser
 import glob
 import json
+import os
 import platform
 import re
 import sys
@@ -90,6 +91,21 @@ def pick_font_family(root):
 
 
 def scan_installed_apps():
+    """Devuelve una lista [(nombre, comando), ...] con las apps instaladas,
+    para el buscador del panel. En Linux lee los .desktop del sistema; en
+    Windows, los accesos directos del menú Inicio."""
+    system = platform.system()
+    if system == "Windows":
+        try:
+            return _scan_installed_apps_windows()
+        except Exception:
+            return []
+    if system == "Linux":
+        return _scan_installed_apps_linux()
+    return []
+
+
+def _scan_installed_apps_linux():
     """Lee los archivos .desktop del sistema (los mismos que arma el menú de
     aplicaciones de Fedora/GNOME) y devuelve una lista de {name, command}."""
     apps = {}
@@ -123,6 +139,46 @@ def scan_installed_apps():
             apps[name] = clean_exec
 
     return sorted(apps.items(), key=lambda item: item[0].lower())
+
+
+# Carpetas donde Windows guarda los accesos directos del menú Inicio
+# (todos los usuarios + el usuario actual) — las mismas que usa el propio
+# menú de Windows.
+WINDOWS_START_MENU_DIRS = [
+    r"%ProgramData%\Microsoft\Windows\Start Menu\Programs",
+    r"%APPDATA%\Microsoft\Windows\Start Menu\Programs",
+]
+
+
+def _scan_installed_apps_windows():
+    """Recorre los accesos directos (.lnk) del menú Inicio y resuelve a qué
+    ejecutable apunta cada uno, usando el mismo mecanismo que usa el propio
+    Windows (WScript.Shell) para leerlos."""
+    import pythoncom
+    import win32com.client
+
+    pythoncom.CoInitialize()
+    try:
+        shell = win32com.client.Dispatch("WScript.Shell")
+        apps = {}
+        for raw_dir in WINDOWS_START_MENU_DIRS:
+            base = Path(os.path.expandvars(raw_dir))
+            if not base.exists():
+                continue
+            for lnk_path in base.rglob("*.lnk"):
+                name = lnk_path.stem
+                if "uninstall" in name.lower() or "desinstalar" in name.lower():
+                    continue
+                try:
+                    target = shell.CreateShortCut(str(lnk_path)).Targetpath
+                except Exception:
+                    continue
+                if not target or not target.lower().endswith(".exe"):
+                    continue
+                apps[name] = f'"{target}"'
+        return sorted(apps.items(), key=lambda item: item[0].lower())
+    finally:
+        pythoncom.CoUninitialize()
 
 
 def load_config():
@@ -235,8 +291,8 @@ class JarvisConfigApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Jarvis - Panel de configuración")
-        self.geometry("640x760")
-        self.minsize(580, 540)
+        self.geometry("640x840")
+        self.minsize(580, 620)
         self.configure(bg=BG)
 
         self.font_family = pick_font_family(self)
@@ -380,10 +436,13 @@ class JarvisConfigApp(tk.Tk):
             bg=CARD_BG_ALT, hover=_lighten(CARD_BG_ALT, 0.3), fg=TEXT,
             font=self.f_label, padx=14, pady=8,
         ).pack(side="left")
+        _hints_by_os = {
+            "Linux": "(buscá entre tus apps instaladas, como el menú de aplicaciones)",
+            "Windows": "(buscá entre tus apps instaladas, como el menú Inicio)",
+        }
         tk.Label(
             add_row,
-            text="(buscá entre tus apps instaladas, como el menú de aplicaciones)"
-            if platform.system() == "Linux" else "",
+            text=_hints_by_os.get(platform.system(), ""),
             bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint,
         ).pack(side="left", padx=10)
 
@@ -606,7 +665,7 @@ class JarvisConfigApp(tk.Tk):
         self._refresh_empty_hint()
 
     def add_app_dialog(self):
-        if platform.system() == "Linux":
+        if platform.system() in ("Linux", "Windows"):
             self._open_installed_apps_picker()
         else:
             self._add_app_manually()
@@ -629,7 +688,8 @@ class JarvisConfigApp(tk.Tk):
         picker.transient(self)
         picker.grab_set()
 
-        tk.Label(picker, text="Buscá una app (como en tu menú de aplicaciones)",
+        menu_label = "menú Inicio" if platform.system() == "Windows" else "menú de aplicaciones"
+        tk.Label(picker, text=f"Buscá una app (como en tu {menu_label})",
                  bg=BG, fg=TEXT, font=self.f_label).pack(anchor="w", padx=16, pady=(16, 8))
 
         search_var = tk.StringVar()

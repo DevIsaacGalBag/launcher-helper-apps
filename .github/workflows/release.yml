@@ -22,9 +22,11 @@ jobs:
           - os: windows-latest
             dist_name: Jarvis.exe
             asset_name: Jarvis-Windows.exe
+            extra_pyinstaller_args: --collect-all win32com --collect-all win32comext --collect-all win32timezone
           - os: ubuntu-latest
             dist_name: Jarvis
             asset_name: Jarvis-Linux
+            extra_pyinstaller_args: ""
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -44,9 +46,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y python3-tk
 
       - name: Compilar con PyInstaller
+        shell: bash
         run: >
           pyinstaller --onefile --windowed --name Jarvis
           --collect-all edge_tts --collect-all certifi
+          ${{ matrix.extra_pyinstaller_args }}
           config_gui.py
 
       - name: Renombrar artefacto
