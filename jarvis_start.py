@@ -145,7 +145,15 @@ def _play_audio_blocking(path):
             "Start-Sleep -Seconds $player.NaturalDuration.TimeSpan.TotalSeconds; "
             "$player.Close();"
         )
-        subprocess.run(["powershell", "-NoProfile", "-Command", ps_command], check=True)
+        # Sin esto, se abre una consola de PowerShell visible (fondo azul)
+        # mientras habla Jarvis — CREATE_NO_WINDOW evita que se cree la consola.
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+        subprocess.run(
+            ["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps_command],
+            check=True, startupinfo=startupinfo, creationflags=subprocess.CREATE_NO_WINDOW,
+        )
         return
 
     # Linux / macOS: probamos reproductores de línea de comandos comunes, en orden de preferencia
@@ -247,6 +255,12 @@ def open_spotify(track_url):
 
 
 def launch_apps(apps):
+    # En Windows, shell=True lanza por debajo un cmd.exe que puede hacer
+    # parpadear una consola; CREATE_NO_WINDOW evita ese flash.
+    popen_kwargs = {}
+    if platform.system() == "Windows":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+
     for app in apps:
         if not app.get("enabled"):
             continue
@@ -256,7 +270,7 @@ def launch_apps(apps):
             continue
         try:
             # shell=True permite tanto rutas con espacios como comandos simples (ej: "discord")
-            subprocess.Popen(command, shell=True)
+            subprocess.Popen(command, shell=True, **popen_kwargs)
             print(f"[apps] Abriendo: {name}")
         except Exception as e:
             print(f"[apps] No se pudo abrir {name}: {e}")
