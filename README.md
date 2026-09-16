@@ -11,6 +11,10 @@ Asistente de arranque personal. Al prender tu compu:
 
 Funciona igual en **Linux** y **Windows** (mismo código Python).
 
+> **¿No querés instalar Python?** Descargá el ejecutable ya armado (`.exe` para Windows,
+> binario para Linux) desde la [página del proyecto](https://devisaacgalbag.github.io/launcher-helper-apps/) —
+> no hace falta nada más instalado. Las secciones de abajo son para correrlo desde el código fuente.
+
 ---
 
 ## 1. Requisitos
@@ -63,6 +67,11 @@ Si todo suena y abre bien, pasá al siguiente paso.
 
 ## 5. Hacer que arranque solo al prender la compu
 
+La forma más simple: abrí `config_gui.py`, activá el switch **"Iniciar con la compu"** y
+tocá "Guardar cambios" — funciona igual en Linux y Windows y es lo que usa el ejecutable
+empaquetado. Las opciones de abajo (`setup_linux.sh` / `setup_windows.ps1`) hacen lo mismo
+a mano y además agregan un acceso directo al panel de configuración en el menú de apps.
+
 ### En Linux
 
 ```bash
@@ -102,16 +111,28 @@ Guardás los cambios y listo — no hace falta volver a correr los scripts de `s
 
 ```
 jarvis/
+├── .github/workflows/release.yml   <- compila y publica los ejecutables (PyInstaller)
+├── docs/index.html                 <- landing page del proyecto (GitHub Pages)
 ├── .gitignore
+├── autostart.py               <- registra/quita el inicio automático (Linux y Windows)
 ├── config.example.json    
 ├── config.json            
-├── config_gui.py            <- panel de configuración (interfaz gráfica)
-├── jarvis_start.py           <- script que se ejecuta al prender la pc
+├── config_gui.py               <- panel de configuración (interfaz gráfica)
+├── jarvis_start.py             <- lógica que corre al prender la pc
 ├── requirements.txt
-├── setup_linux.sh            <- registra el autostart en Linux
-├── setup_windows.ps1         <- registra el autostart en Windows
+├── setup_linux.sh              <- registra el autostart en Linux (uso desde fuente)
+├── setup_windows.ps1           <- registra el autostart en Windows (uso desde fuente)
 └── README.md
 ```
+
+## Descargas y soporte
+
+- Los ejecutables (`.exe` de Windows y binario de Linux) se generan automáticamente con
+  GitHub Actions cada vez que se publica un tag `vX.Y.Z`, y quedan disponibles en
+  [Releases](https://github.com/DevIsaacGalBag/launcher-helper-apps/releases).
+- La landing page vive en `docs/index.html` y se publica con GitHub Pages.
+- Si te sirvió el proyecto, podés invitar un café en
+  [Ko-fi](https://ko-fi.com/isaacdev).
 
 ## Notas / posibles mejoras futuras
 

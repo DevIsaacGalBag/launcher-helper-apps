@@ -16,6 +16,7 @@ __pycache__/
 .eggs/
 build/
 dist/
+*.spec
 
 # --- Logs / temporales ---
 *.log
@@ -26,6 +27,9 @@ dist/
 .idea/
 *.swp
 .DS_Store
+
+# --- Claude Code (config local de preview, no forma parte del proyecto) ---
+.claude/
 
 # --- Windows ---
 Thumbs.db
