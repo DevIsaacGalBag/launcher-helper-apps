@@ -1,6 +1,6 @@
 # launcher-helper-apps
 
-# Jarvis-Personal 🤖
+# RagnarSukDev-Personal 🤖
 
 Asistente de arranque personal. Al prender tu compu:
 1. Te saluda por voz ("Buenos días señor Isaac...")
