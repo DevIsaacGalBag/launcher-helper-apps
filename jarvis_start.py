@@ -95,12 +95,31 @@ def get_spanish_date():
     return f"Hoy es {dia_semana}, {now.day} de {mes} de {now.year}"
 
 
-def get_weather_text():
+def _resolve_location(city_override):
+    """Si el usuario cargó una ciudad a mano, la geocodificamos con
+    Open-Meteo (gratis, sin API key). Si no hay ciudad, o no se encontró,
+    caemos a la ubicación aproximada por IP (que algunos proveedores de
+    internet registran en el nodo regional, no en la ciudad real)."""
+    if city_override:
+        try:
+            resp = requests.get(
+                "https://geocoding-api.open-meteo.com/v1/search",
+                params={"name": city_override, "count": 1, "language": "es", "format": "json"},
+                timeout=5,
+            ).json()
+            results = resp.get("results") or []
+            if results:
+                return results[0]["latitude"], results[0]["longitude"], results[0]["name"]
+        except Exception:
+            pass
+
+    geo = requests.get("http://ip-api.com/json/", timeout=5).json()
+    return geo.get("lat"), geo.get("lon"), geo.get("city", "tu ciudad")
+
+
+def get_weather_text(city_override=None):
     try:
-        # Ubicación aproximada por IP (gratis, sin API key)
-        geo = requests.get("http://ip-api.com/json/", timeout=5).json()
-        lat, lon = geo.get("lat"), geo.get("lon")
-        city = geo.get("city", "tu ciudad")
+        lat, lon, city = _resolve_location(city_override)
 
         weather = requests.get(
             "https://api.open-meteo.com/v1/forecast",
@@ -284,7 +303,7 @@ def main():
 
     greeting = f"{get_greeting_word()} {trato} {user_name}." if user_name else get_greeting_word()
     date_text = get_spanish_date()
-    weather_text = get_weather_text()
+    weather_text = get_weather_text(config.get("city"))
 
     full_message = f"{greeting} {date_text}. {weather_text}"
     speak(full_message, voice)
