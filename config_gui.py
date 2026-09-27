@@ -56,6 +56,11 @@ def _truncate(text, max_chars=64):
 def _open_folder_command(path):
     """Arma el comando para abrir una carpeta en el explorador de archivos
     del sistema (el mismo que usaría jarvis_start.py con shell=True)."""
+    # filedialog.askdirectory() devuelve rutas con "/" incluso en Windows
+    # (así maneja los paths Tcl/Tk); explorer.exe no reconoce una ruta de
+    # red \\servidor\carpeta escrita con barras normales y termina abriendo
+    # una carpeta por defecto en su lugar. normpath la deja con "\" nativas.
+    path = os.path.normpath(path)
     system = platform.system()
     if system == "Windows":
         return f'explorer "{path}"'
