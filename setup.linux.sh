@@ -1,5 +1,5 @@
 #!/bin/bash
-# Registra Jarvis para que arranque solo la próxima vez que inicies sesión en Linux,
+# Registra RagnarSuk para que arranque solo la próxima vez que inicies sesión en Linux,
 # y agrega un acceso directo al panel de configuración en el menú de aplicaciones.
 set -e
 
@@ -17,7 +17,7 @@ PYTHON_BIN="$(command -v python3)"
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Type=Application
-Name=Jarvis
+Name=RagnarSuk
 Comment=Asistente de arranque
 Exec=$PYTHON_BIN "$DIR/jarvis_start.py"
 Terminal=false
@@ -26,11 +26,11 @@ EOF
 chmod +x "$DESKTOP_FILE"
 
 # 2) Menú de aplicaciones: acceso directo al panel de configuración,
-#    buscable como cualquier otra app (Actividades > "Jarvis")
+#    buscable como cualquier otra app (Actividades > "RagnarSuk")
 cat > "$CONFIG_DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Type=Application
-Name=Jarvis - Configuración
+Name=RagnarSuk - Configuración
 Comment=Panel para elegir qué apps y canción se abren al iniciar
 Exec=$PYTHON_BIN "$DIR/config_gui.py"
 Icon=preferences-system
@@ -40,10 +40,10 @@ EOF
 chmod +x "$CONFIG_DESKTOP_FILE"
 
 echo "Listo:"
-echo "  - Jarvis se ejecutará automáticamente la próxima vez que inicies sesión."
+echo "  - RagnarSuk se ejecutará automáticamente la próxima vez que inicies sesión."
 echo "    ($DESKTOP_FILE)"
 echo "  - El panel de configuración ya aparece en tu menú de aplicaciones,"
-echo "    buscalo como 'Jarvis - Configuración'."
+echo "    buscalo como 'RagnarSuk - Configuración'."
 echo "    ($CONFIG_DESKTOP_FILE)"
 echo ""
 echo "Para probar el saludo ahora mismo sin reiniciar, corré:"

@@ -1,9 +1,9 @@
 """
-JARVIS - Inicio automático
+RAGNARSUK - Inicio automático
 ---------------------------
-Registra (o quita) a Jarvis del arranque del sistema operativo, tanto si
+Registra (o quita) a RagnarSuk del arranque del sistema operativo, tanto si
 corre desde el código fuente (python config_gui.py) como empaquetado
-(Jarvis.exe / binario de Linux generado con PyInstaller).
+(RagnarSuk.exe / binario de Linux generado con PyInstaller).
 
 Linux: crea/borra ~/.config/autostart/jarvis.desktop
 Windows: agrega/borra un valor en HKCU\\...\\CurrentVersion\\Run
@@ -13,7 +13,12 @@ import platform
 import sys
 from pathlib import Path
 
-APP_NAME = "Jarvis"
+APP_NAME = "RagnarSuk"
+
+# Nombres viejos que pudo haber dejado una versión anterior (antes de
+# rebrandear de "Jarvis" a "RagnarSuk") — se limpian para no dejar dos
+# entradas de inicio automático apuntando a la misma app.
+_LEGACY_WINDOWS_NAMES = ["Jarvis"]
 
 
 def _is_frozen():
@@ -21,7 +26,7 @@ def _is_frozen():
 
 
 def _launch_command():
-    """Comando que arranca Jarvis en modo silencioso (sin abrir el panel)."""
+    """Comando que arranca RagnarSuk en modo silencioso (sin abrir el panel)."""
     if _is_frozen():
         return [sys.executable, "--start"]
     script = Path(__file__).resolve().parent / "config_gui.py"
@@ -99,8 +104,19 @@ def _windows_registry_value():
         return None
 
 
+def _cleanup_legacy_windows_entries():
+    import winreg
+    for legacy_name in _LEGACY_WINDOWS_NAMES:
+        try:
+            with _windows_run_key(winreg.KEY_SET_VALUE) as key:
+                winreg.DeleteValue(key, legacy_name)
+        except (FileNotFoundError, OSError):
+            pass
+
+
 def _enable_windows():
     import winreg
+    _cleanup_legacy_windows_entries()
     command = " ".join(f'"{part}"' for part in _launch_command())
     with _windows_run_key(winreg.KEY_SET_VALUE) as key:
         winreg.SetValueEx(key, APP_NAME, 0, winreg.REG_SZ, command)
@@ -108,6 +124,7 @@ def _enable_windows():
 
 def _disable_windows():
     import winreg
+    _cleanup_legacy_windows_entries()
     try:
         with _windows_run_key(winreg.KEY_SET_VALUE) as key:
             winreg.DeleteValue(key, APP_NAME)

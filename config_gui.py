@@ -1,5 +1,5 @@
 """
-JARVIS - Panel de configuración
+RAGNARSUK - Panel de configuración
 --------------------------------
 Interfaz gráfica para elegir qué apps se abren al prender la compu,
 qué canción de Spotify se reproduce, y tu nombre para el saludo.
@@ -289,7 +289,7 @@ def style_entry(entry):
 # ============================================================
 #  App principal
 # ============================================================
-class JarvisConfigApp(tk.Tk):
+class RagnarSukConfigApp(tk.Tk):
     VOICES = {
         "Español (México) - Dalia, mujer": "es-MX-DaliaNeural",
         "Español (México) - Jorge, hombre": "es-MX-JorgeNeural",
@@ -299,9 +299,16 @@ class JarvisConfigApp(tk.Tk):
         "Español (Argentina) - Tomás, hombre": "es-AR-TomasNeural",
     }
 
+    TREATMENTS = {
+        "Señor": "señor",
+        "Señora": "señora",
+        "Señorita": "señorita",
+        "Joven": "joven",
+    }
+
     def __init__(self):
         super().__init__()
-        self.title("Jarvis - Panel de configuración")
+        self.title("RagnarSuk - Panel de configuración")
         self.geometry("640x840")
         self.minsize(580, 620)
         self.configure(bg=BG)
@@ -374,7 +381,7 @@ class JarvisConfigApp(tk.Tk):
         # --- Header ---
         header = tk.Frame(outer, bg=BG)
         header.pack(fill="x", padx=20, pady=(22, 4))
-        tk.Label(header, text="JARVIS", bg=BG, fg=TEXT, font=self.f_title).pack(anchor="w")
+        tk.Label(header, text="RAGNARSUK", bg=BG, fg=TEXT, font=self.f_title).pack(anchor="w")
         tk.Label(header, text="Configurá qué pasa cuando prendés tu compu",
                  bg=BG, fg=MUTED, font=self.f_subtitle).pack(anchor="w", pady=(2, 0))
 
@@ -391,34 +398,46 @@ class JarvisConfigApp(tk.Tk):
         self.name_var = tk.StringVar(value=self.config_data.get("user_name", ""))
         self._entry(grid, self.name_var, width=26).grid(row=0, column=1, sticky="ew", padx=(12, 0), pady=8)
 
-        tk.Label(grid, text="Voz", bg=CARD_BG, fg=MUTED, font=self.f_label) \
+        tk.Label(grid, text="¿Cómo te digo?", bg=CARD_BG, fg=MUTED, font=self.f_label) \
             .grid(row=1, column=0, sticky="w", pady=8)
+        current_treatment = self.config_data.get("trato", "señor")
+        current_treatment_label = next(
+            (k for k, v in self.TREATMENTS.items() if v == current_treatment),
+            "Señor",
+        )
+        self.treatment_var = tk.StringVar(value=current_treatment_label)
+        ttk.Combobox(grid, textvariable=self.treatment_var, values=list(self.TREATMENTS.keys()),
+                     state="readonly", font=self.f_label) \
+            .grid(row=1, column=1, sticky="ew", padx=(12, 0), pady=8)
+
+        tk.Label(grid, text="Voz", bg=CARD_BG, fg=MUTED, font=self.f_label) \
+            .grid(row=2, column=0, sticky="w", pady=8)
         current_voice = self.config_data.get("voice", "es-MX-DaliaNeural")
         current_label = next((k for k, v in self.VOICES.items() if v == current_voice),
                               list(self.VOICES.keys())[0])
         self.voice_var = tk.StringVar(value=current_label)
         ttk.Combobox(grid, textvariable=self.voice_var, values=list(self.VOICES.keys()),
                      state="readonly", font=self.f_label) \
-            .grid(row=1, column=1, sticky="ew", padx=(12, 0), pady=8)
+            .grid(row=2, column=1, sticky="ew", padx=(12, 0), pady=8)
 
         tk.Label(grid, text="Canción de Spotify", bg=CARD_BG, fg=MUTED, font=self.f_label) \
-            .grid(row=2, column=0, sticky="w", pady=8)
+            .grid(row=3, column=0, sticky="w", pady=8)
         self.spotify_var = tk.StringVar(value=self.config_data.get("spotify_track_url", ""))
-        self._entry(grid, self.spotify_var).grid(row=2, column=1, sticky="ew", padx=(12, 0), pady=(8, 0))
+        self._entry(grid, self.spotify_var).grid(row=3, column=1, sticky="ew", padx=(12, 0), pady=(8, 0))
 
         self.spotify_status_var = tk.StringVar()
         self.spotify_status_label = tk.Label(
             grid, textvariable=self.spotify_status_var, bg=CARD_BG, font=self.f_hint, anchor="w",
         )
-        self.spotify_status_label.grid(row=3, column=1, sticky="w", padx=(12, 0), pady=(4, 8))
+        self.spotify_status_label.grid(row=4, column=1, sticky="w", padx=(12, 0), pady=(4, 8))
         self.spotify_var.trace_add("write", lambda *_: self._update_spotify_status())
         self._update_spotify_status()
 
         tk.Label(grid, text="Iniciar con la compu", bg=CARD_BG, fg=MUTED, font=self.f_label) \
-            .grid(row=4, column=0, sticky="w", pady=8)
+            .grid(row=5, column=0, sticky="w", pady=8)
         self.autostart_var = tk.BooleanVar(value=self._autostart_enabled_safe())
         autostart_row = tk.Frame(grid, bg=CARD_BG)
-        autostart_row.grid(row=4, column=1, sticky="w", padx=(12, 0), pady=8)
+        autostart_row.grid(row=5, column=1, sticky="w", padx=(12, 0), pady=8)
         ToggleSwitch(autostart_row, self.autostart_var, bg=CARD_BG).pack(side="left")
         tk.Label(autostart_row, text="Se aplica al guardar", bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint) \
             .pack(side="left", padx=(10, 0))
@@ -630,7 +649,7 @@ class JarvisConfigApp(tk.Tk):
                 autostart.disable()
         except OSError as e:
             self._message_dialog(
-                "Jarvis",
+                "RagnarSuk",
                 f"No pude aplicar el cambio de inicio automático: {e}",
                 kind="warning",
             )
@@ -697,7 +716,7 @@ class JarvisConfigApp(tk.Tk):
         installed_apps = scan_installed_apps()
         if not installed_apps:
             self._message_dialog(
-                "Jarvis",
+                "RagnarSuk",
                 "No encontré apps instaladas para listar. Vas a poder agregarla a mano.",
                 kind="warning",
             )
@@ -799,6 +818,7 @@ class JarvisConfigApp(tk.Tk):
 
     def save(self):
         self.config_data["user_name"] = self.name_var.get().strip()
+        self.config_data["trato"] = self.TREATMENTS[self.treatment_var.get()]
         self.config_data["voice"] = self.VOICES[self.voice_var.get()]
         self.config_data["spotify_track_url"] = self.spotify_var.get().strip()
         self.config_data["apps"] = [
@@ -807,7 +827,7 @@ class JarvisConfigApp(tk.Tk):
         ]
         save_config(self.config_data)
         self._apply_autostart()
-        self._message_dialog("Jarvis", "Cambios guardados. Se van a aplicar la próxima vez que prendas tu compu.")
+        self._message_dialog("RagnarSuk", "Cambios guardados. Se van a aplicar la próxima vez que prendas tu compu.")
 
 
 if __name__ == "__main__":
@@ -817,5 +837,5 @@ if __name__ == "__main__":
         import jarvis_start
         jarvis_start.main()
     else:
-        app = JarvisConfigApp()
+        app = RagnarSukConfigApp()
         app.mainloop()

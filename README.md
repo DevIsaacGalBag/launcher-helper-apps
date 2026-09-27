@@ -1,6 +1,6 @@
 # launcher-helper-apps
 
-# RagnarSukDev-Personal 🤖
+# RagnarSuk 🤖
 
 Asistente de arranque personal. Al prender tu compu:
 1. Te saluda por voz ("Buenos días señor Isaac...")
@@ -110,7 +110,7 @@ Guardás los cambios y listo — no hace falta volver a correr los scripts de `s
 ## Estructura del proyecto
 
 ```
-jarvis/
+ragnarsuk/
 ├── .github/workflows/release.yml   <- compila y publica los ejecutables (PyInstaller)
 ├── docs/index.html                 <- landing page del proyecto (GitHub Pages)
 ├── .gitignore
@@ -138,7 +138,7 @@ jarvis/
 
 - Si en algún momento sacás Spotify Premium, se puede migrar a la API oficial de Spotify
   para controlar reproducción exacta, volumen, playlists, etc.
-- Se puede agregar reconocimiento de voz para darle comandos a Jarvis además del saludo inicial.
+- Se puede agregar reconocimiento de voz para darle comandos a RagnarSuk además del saludo inicial.
 - El clima usa [Open-Meteo](https://open-meteo.com) (gratis, sin API key) y la ubicación
   se detecta por IP con [ip-api.com](https://ip-api.com) (gratis, sin API key).
 - La voz usa **Edge TTS** (motor de Microsoft, gratis, sin API key, voces bastante naturales).

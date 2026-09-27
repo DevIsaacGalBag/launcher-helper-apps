@@ -1,6 +1,6 @@
 name: Build and release
 
-# Compila Jarvis como ejecutable standalone (con PyInstaller) para Windows y
+# Compila RagnarSuk como ejecutable standalone (con PyInstaller) para Windows y
 # Linux, y publica los artefactos en un GitHub Release. Se dispara al pushear
 # un tag "vX.Y.Z" o manualmente desde la pestaña Actions.
 
@@ -20,12 +20,12 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            dist_name: Jarvis.exe
-            asset_name: Jarvis-Windows.exe
+            dist_name: RagnarSuk.exe
+            asset_name: RagnarSuk-Windows.exe
             extra_pyinstaller_args: --collect-all win32com --collect-all win32comext --collect-all win32timezone
           - os: ubuntu-latest
-            dist_name: Jarvis
-            asset_name: Jarvis-Linux
+            dist_name: RagnarSuk
+            asset_name: RagnarSuk-Linux
             extra_pyinstaller_args: ""
     runs-on: ${{ matrix.os }}
     steps:
@@ -48,7 +48,7 @@ jobs:
       - name: Compilar con PyInstaller
         shell: bash
         run: >
-          pyinstaller --onefile --windowed --name Jarvis
+          pyinstaller --onefile --windowed --name RagnarSuk
           --collect-all edge_tts --collect-all certifi
           ${{ matrix.extra_pyinstaller_args }}
           config_gui.py
