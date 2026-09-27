@@ -1,5 +1,5 @@
 """
-JARVIS - Script de arranque
+RAGNARSUK - Script de arranque
 ----------------------------
 Este script se ejecuta automáticamente al prender la computadora
 (una vez configurado el autostart con setup_linux.sh o setup_windows.ps1).
@@ -146,7 +146,7 @@ def _play_audio_blocking(path):
             "$player.Close();"
         )
         # Sin esto, se abre una consola de PowerShell visible (fondo azul)
-        # mientras habla Jarvis — CREATE_NO_WINDOW evita que se cree la consola.
+        # mientras habla RagnarSuk — CREATE_NO_WINDOW evita que se cree la consola.
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
@@ -178,7 +178,7 @@ def _play_audio_blocking(path):
 
 
 def speak(text, voice):
-    print(f"[jarvis dice] {text}")
+    print(f"[ragnarsuk dice] {text}")
     try:
         asyncio.run(_generate_speech(text, voice))
         _play_audio_blocking(AUDIO_PATH)
@@ -280,8 +280,9 @@ def main():
     config = load_config()
     user_name = config.get("user_name", "")
     voice = config.get("voice", "es-MX-DaliaNeural")
+    trato = config.get("trato", "señor")
 
-    greeting = f"{get_greeting_word()} señor {user_name}." if user_name else get_greeting_word()
+    greeting = f"{get_greeting_word()} {trato} {user_name}." if user_name else get_greeting_word()
     date_text = get_spanish_date()
     weather_text = get_weather_text()
 

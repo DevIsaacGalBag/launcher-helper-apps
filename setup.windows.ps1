@@ -1,4 +1,4 @@
-# Registra Jarvis para que arranque solo la próxima vez que inicies sesión en Windows.
+# Registra RagnarSuk para que arranque solo la próxima vez que inicies sesión en Windows.
 # Ejecutar con: powershell -ExecutionPolicy Bypass -File setup_windows.ps1
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -25,7 +25,7 @@ $Shortcut.Arguments = "`"$ScriptDir\jarvis_start.py`""
 $Shortcut.WorkingDirectory = $ScriptDir
 $Shortcut.Save()
 
-Write-Host "Listo. Jarvis se ejecutará automáticamente la próxima vez que inicies sesión en Windows." -ForegroundColor Green
+Write-Host "Listo. RagnarSuk se ejecutará automáticamente la próxima vez que inicies sesión en Windows." -ForegroundColor Green
 Write-Host "Acceso directo creado en: $ShortcutPath"
 Write-Host ""
 Write-Host "Para probarlo ahora mismo sin reiniciar, corré:"
