@@ -53,6 +53,17 @@ def _truncate(text, max_chars=64):
     return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "…"
 
 
+def _open_folder_command(path):
+    """Arma el comando para abrir una carpeta en el explorador de archivos
+    del sistema (el mismo que usaría jarvis_start.py con shell=True)."""
+    system = platform.system()
+    if system == "Windows":
+        return f'explorer "{path}"'
+    if system == "Darwin":
+        return f'open "{path}"'
+    return f'xdg-open "{path}"'
+
+
 # ============================================================
 #  Paleta / tema visual
 # ============================================================
@@ -436,6 +447,11 @@ class JarvisConfigApp(tk.Tk):
             bg=CARD_BG_ALT, hover=_lighten(CARD_BG_ALT, 0.3), fg=TEXT,
             font=self.f_label, padx=14, pady=8,
         ).pack(side="left")
+        flat_button(
+            add_row, "+  Carpeta", self.add_folder_dialog,
+            bg=CARD_BG_ALT, hover=_lighten(CARD_BG_ALT, 0.3), fg=TEXT,
+            font=self.f_label, padx=14, pady=8,
+        ).pack(side="left", padx=(8, 0))
         _hints_by_os = {
             "Linux": "(buscá entre tus apps instaladas, como el menú de aplicaciones)",
             "Windows": "(buscá entre tus apps instaladas, como el menú Inicio)",
@@ -669,6 +685,13 @@ class JarvisConfigApp(tk.Tk):
             self._open_installed_apps_picker()
         else:
             self._add_app_manually()
+
+    def add_folder_dialog(self):
+        path = filedialog.askdirectory(title="Elegí una carpeta")
+        if not path:
+            return
+        name = Path(path).name or path
+        self._add_app_row(name, _open_folder_command(path), True)
 
     def _open_installed_apps_picker(self):
         installed_apps = scan_installed_apps()
