@@ -410,34 +410,43 @@ class RagnarSukConfigApp(tk.Tk):
                      state="readonly", font=self.f_label) \
             .grid(row=1, column=1, sticky="ew", padx=(12, 0), pady=8)
 
-        tk.Label(grid, text="Voz", bg=CARD_BG, fg=MUTED, font=self.f_label) \
+        tk.Label(grid, text="Ciudad (opcional)", bg=CARD_BG, fg=MUTED, font=self.f_label) \
             .grid(row=2, column=0, sticky="w", pady=8)
+        self.city_var = tk.StringVar(value=self.config_data.get("city", ""))
+        self._entry(grid, self.city_var, width=26).grid(row=2, column=1, sticky="ew", padx=(12, 0), pady=(8, 0))
+        tk.Label(
+            grid, text="Dejalo vacío para detectarla sola por tu conexión (puede fallar según tu proveedor)",
+            bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint,
+        ).grid(row=3, column=1, sticky="w", padx=(12, 0), pady=(0, 8))
+
+        tk.Label(grid, text="Voz", bg=CARD_BG, fg=MUTED, font=self.f_label) \
+            .grid(row=4, column=0, sticky="w", pady=8)
         current_voice = self.config_data.get("voice", "es-MX-DaliaNeural")
         current_label = next((k for k, v in self.VOICES.items() if v == current_voice),
                               list(self.VOICES.keys())[0])
         self.voice_var = tk.StringVar(value=current_label)
         ttk.Combobox(grid, textvariable=self.voice_var, values=list(self.VOICES.keys()),
                      state="readonly", font=self.f_label) \
-            .grid(row=2, column=1, sticky="ew", padx=(12, 0), pady=8)
+            .grid(row=4, column=1, sticky="ew", padx=(12, 0), pady=8)
 
         tk.Label(grid, text="Canción de Spotify", bg=CARD_BG, fg=MUTED, font=self.f_label) \
-            .grid(row=3, column=0, sticky="w", pady=8)
+            .grid(row=5, column=0, sticky="w", pady=8)
         self.spotify_var = tk.StringVar(value=self.config_data.get("spotify_track_url", ""))
-        self._entry(grid, self.spotify_var).grid(row=3, column=1, sticky="ew", padx=(12, 0), pady=(8, 0))
+        self._entry(grid, self.spotify_var).grid(row=5, column=1, sticky="ew", padx=(12, 0), pady=(8, 0))
 
         self.spotify_status_var = tk.StringVar()
         self.spotify_status_label = tk.Label(
             grid, textvariable=self.spotify_status_var, bg=CARD_BG, font=self.f_hint, anchor="w",
         )
-        self.spotify_status_label.grid(row=4, column=1, sticky="w", padx=(12, 0), pady=(4, 8))
+        self.spotify_status_label.grid(row=6, column=1, sticky="w", padx=(12, 0), pady=(4, 8))
         self.spotify_var.trace_add("write", lambda *_: self._update_spotify_status())
         self._update_spotify_status()
 
         tk.Label(grid, text="Iniciar con la compu", bg=CARD_BG, fg=MUTED, font=self.f_label) \
-            .grid(row=5, column=0, sticky="w", pady=8)
+            .grid(row=7, column=0, sticky="w", pady=8)
         self.autostart_var = tk.BooleanVar(value=self._autostart_enabled_safe())
         autostart_row = tk.Frame(grid, bg=CARD_BG)
-        autostart_row.grid(row=5, column=1, sticky="w", padx=(12, 0), pady=8)
+        autostart_row.grid(row=7, column=1, sticky="w", padx=(12, 0), pady=8)
         ToggleSwitch(autostart_row, self.autostart_var, bg=CARD_BG).pack(side="left")
         tk.Label(autostart_row, text="Se aplica al guardar", bg=CARD_BG, fg=MUTED_DIM, font=self.f_hint) \
             .pack(side="left", padx=(10, 0))
@@ -819,6 +828,7 @@ class RagnarSukConfigApp(tk.Tk):
     def save(self):
         self.config_data["user_name"] = self.name_var.get().strip()
         self.config_data["trato"] = self.TREATMENTS[self.treatment_var.get()]
+        self.config_data["city"] = self.city_var.get().strip()
         self.config_data["voice"] = self.VOICES[self.voice_var.get()]
         self.config_data["spotify_track_url"] = self.spotify_var.get().strip()
         self.config_data["apps"] = [
